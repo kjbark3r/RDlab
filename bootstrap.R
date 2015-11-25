@@ -56,27 +56,29 @@ head(res)
 # Combine data and run power analysis  
 ############################################################
 
-#combine migrant and resident data in tidy format
+#combine migrant and resident data in tidy format 
 fn <- bind_rows(mig, res)
 
 #check out the data
-boxplot(FecalN ~ mig.status, fn, ylab  = "Fecal N (% dry matter)")
+boxplot(FecalN ~ mig.status, fn, ylab  = "Fecal N (% dry matter)", main = "Adult Female Elk Nutrition")
 
 #determine variance values to use in power analysis
-(lm <- summary(lm(FecalN ~ mig.status, data = fn)))
-
-
-#another (better) way?
+###i don't think lm is necessary - do anova, not regression
+#    (lm <- summary(lm(FecalN ~ mig.status, data = fn)))
 (aov <- summary(aov(FecalN ~ mig.status, data = fn)))
 
 
 #power analysis 
 ##First, determine what my power is given my current sample size.
 ##If not enough power to detect 5% effect size, 
-##figure out what effect size I can detect
-###Notes to self
-####between.var is variance of group means
-####within.var is MSE from ANOVA
+##figure out what effect size I can detect (loop over effect sizes)
 power.anova.test(groups = 2, n = 12, between.var = 0.4312, within.var = 0.1726,
-                 sig.level = 0.05)
+                 sig.level = 0.1, power = NULL)
 
+##initial thoughts about effect size loop
+##need to play with this using hard-wired values 
+##(i.e., vals pulled programmatically from aov - esp within.var)
+for (j in 0:0.5) {  #these should be effect sizes, NOT # times to loop
+  power.anova.test(groups = 2, n = 12, between.var = NULL, within.var = 0.1726,
+                   sig.level = 0.1, power = 0.8)
+}
