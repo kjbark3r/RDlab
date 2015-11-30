@@ -22,7 +22,7 @@ mig.finaldata <- NULL
 ##run loop 12 times, each time taking the average of 2 sequential data points
 for(i in 1:12) {
   mig.finaldata[i] <- sample(mig.newdata$PctFN, 2)
-  }
+}
 
 #create properly formatted dataframe of bootstrapped migrant data
 mig <- data.frame(mig.finaldata)
@@ -44,7 +44,6 @@ for(i in 1:12) {
   res.finaldata[i] <- sample(res.newdata$PctFN, 2)
 }
 
-
 #create properly formatted dataframe of bootstrapped resident data
 res <- data.frame(res.finaldata)
 res$mig.status <- "Resident"
@@ -63,22 +62,30 @@ fn <- bind_rows(mig, res)
 boxplot(FecalN ~ mig.status, fn, ylab  = "Fecal N (% dry matter)", main = "Adult Female Elk Nutrition")
 
 #determine variance values to use in power analysis
-###i don't think lm is necessary - do anova, not regression
-#    (lm <- summary(lm(FecalN ~ mig.status, data = fn)))
+###i don't think lm below was right - do anova, not regression
+#  (lm <- summary(lm(FecalN ~ mig.status, data = fn)))
 (aov <- summary(aov(FecalN ~ mig.status, data = fn)))
 
 
 #power analysis 
 ##First, determine what my power is given my current sample size.
-##If not enough power to detect 5% effect size, 
-##figure out what effect size I can detect (loop over effect sizes)
 power.anova.test(groups = 2, n = 12, between.var = 0.4312, within.var = 0.1726,
                  sig.level = 0.1, power = NULL)
+
+##If not enough power to detect 5% effect size, 
+##figure out what effect size I can detect (loop over effect sizes)
+
 
 ##initial thoughts about effect size loop
 ##need to play with this using hard-wired values 
 ##(i.e., vals pulled programmatically from aov - esp within.var)
+
+#create vector of effect sizes
+
 for (j in 0:0.5) {  #these should be effect sizes, NOT # times to loop
+  reps <- 1000 #loop 1000x
+  results <- matrix(NA, reps, 2) #store results in matrix (1000 rows, 2 cols)
+  
   power.anova.test(groups = 2, n = 12, between.var = NULL, within.var = 0.1726,
                    sig.level = 0.1, power = 0.8)
 }
