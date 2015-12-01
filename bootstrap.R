@@ -21,7 +21,7 @@ mig.finaldata <- NULL
 
 ##run loop 12 times, each time taking the average of 2 sequential data points
 for(i in 1:12) {
-  mig.finaldata[i] <- sample(mig.newdata$PctFN, 2)
+  mig.finaldata[i] <- mean(sample(mig.newdata$PctFN, 2))
 }
 
 #create properly formatted dataframe of bootstrapped migrant data
