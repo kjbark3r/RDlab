@@ -103,18 +103,21 @@ all.boots <- rbind(mig.df, res.df)
 #check out the data (for funzies)
 boxplot(FecalN ~ MigStatus, all.boots, ylab="Fecal N (% dry matter)", 
         main="Adult Female Elk Nutrition")
+summary(lm(FecalN ~ MigStatus, all.boots))
 
-#do i have 80% power to detect a 5% difference in nutrition?
+#Q1: Do I have 80% power to detect a 5% difference in nutrition?
+power.t.test(n = n, delta = 0.05, sd = sd(all.boots$FecalN), 
+             sig.level = 0.05, power = NULL)
+
+#Q2: What % difference can I detect with 80% power? 
 power.t.test(n = n, delta = NULL, sd = sd(all.boots$FecalN), 
-             sig.level = 0.1, power = 0.8)
-#hahahahaha nope :*(
+             sig.level = 0.05, power = 0.8)
 
-#what % difference can I detect with reasonable power? (if any...)
-#look at power ~ effect size
-effect.sizes <- seq(0, 0.5, length.out = 48)
+#Look at power ~ effect size
+effect.sizes <- seq(0, 0.5, length.out = 100)
 power.values <- sapply(effect.sizes, function (effect.sizes) 
   power.t.test(n = n, delta = effect.sizes, sd = sd(all.boots$FecalN), 
-               sig.level = 0.1)$power)
+               sig.level = 0.05)$power)
 
 plot(power.values ~ effect.sizes, ylab = "Power", xlab = "Effect Size",
-    main = "Two-tailed t-test with alpha = 0.1", type = "l")
+    main = "Two-tailed t-test with alpha = 0.05", type = "l")
